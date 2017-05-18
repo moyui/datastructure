@@ -3,7 +3,7 @@
 #include <malloc.h>
 
 #define STACK_INIT_SIZE 100    /*存储空间初始分配量*/
-#define STACKINCREMENT 10    /*存储空间分配增量*/
+#define STACKINCREMENT 20    /*存储空间分配增量*/
 
 typedef struct {
   char *top;
@@ -68,7 +68,7 @@ int match (SqStack *S, int counter) {    /*判断括号是否匹配*/
                 default: break;
             }
         }
-        if (flag1 == 0 && flag2 == 0 && flag3 == 0) {
+        if (flag1 == 0 && flag2 == 0 && flag3 == 0 && (counter != 0)) {
             printf("括号匹配！");
         } else {
             printf("括号不匹配！");
@@ -83,7 +83,7 @@ int main() {
     SqStack *S;
     InitStack(&S);
     printf("请依次输入字符(回车键表示结束)：\n");
-    while (c != '\n') {    /*当输入的字符不是回车时,继续输入*/
+    while (c != '\n') {    /*当输入的字符是回车时,停止输入*/
         c = getchar();
         if (c != '\n') {    /*当输入的字符不是回车时,将其放入栈*/
             Push(&S, c);
