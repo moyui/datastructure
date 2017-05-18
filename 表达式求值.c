@@ -42,6 +42,14 @@ int Pop (SqStack *S, char *e) {    /*ÍËÕ»*/
     return 1;
 }
 
+char getTop(SqStack S){    /*·µ»ØÕ»¶¥µÚÒ»¸öÔªËØ*/
+    char e;
+    if(S.top == S.base)
+        return 0;
+    e = *(S.top - 1);
+    return e;
+}
+
 char Precede(char a, char b) {    /*±È½ÏÁ½¸öÔËËã·ûµÄÓÅÏÈ¼¶,a£¬bÖĞ´æ·Å´ı±È½ÏµÄÔËËã·û,
                                    '>'±íÊ¾a>b,'0'±íÊ¾²»¿ÉÄÜ³öÏÖµÄ±È½Ï */
     int i,j;
@@ -54,113 +62,92 @@ char Precede(char a, char b) {    /*±È½ÏÁ½¸öÔËËã·ûµÄÓÅÏÈ¼¶,a£¬bÖĞ´æ·Å´ı±È½ÏµÄÔËË
         {'>','>','>','>','0','>','>'},
         {'<','<','<','<','<','0','='}};
     switch(a) {
-        case '+': i=0; break;
-        case '-': i=1; break;
-        case '*': i=2; break;
-        case '/': i=3; break;
-        case '(': i=4; break;
-        case ')': i=5; break;
-        case '#': i=6; break;
+        case '+': i = 0; break;
+        case '-': i = 1; break;
+        case '*': i = 2; break;
+        case '/': i = 3; break;
+        case '(': i = 4; break;
+        case ')': i = 5; break;
+        case '#': i = 6; break;
     }
     switch(b) {
-        case '+': j=0; break;
-        case '-': j=1; break;
-        case '*': j=2; break;
-        case '/': j=3; break;
-        case '(': j=4; break;
-        case ')': j=5; break;
-        case '#': j=6; break;
+        case '+': j = 0; break;
+        case '-': j = 1; break;
+        case '*': j = 2; break;
+        case '/': j = 3; break;
+        case '(': j = 4; break;
+        case ')': j = 5; break;
+        case '#': j = 6; break;
     }
     return pre[i][j];
 }
 
-int InN(char c£¬ char op[]) {    /*ÅĞ¶ÏÊäÈëµÄÄ³¸ö×Ö·ûÊÇ·ñÊÇÔËËã·û*/
-    char *p;
-    p = op;
-    while(*p != '\0'){
-        if(c == *p)
+int in(char c, char OP[8]) {    /*ÅĞ¶ÏÊäÈëµÄÄ³¸ö×Ö·ûÊÇ·ñÊÇÔËËã·û*/
+    int i;
+    for(i = 0; OP[i] != '\0'; i++) {
+        if(OP[i] == c) {
             return 1;
-        p++;
+        }
     }
     return 0;
 }
 
-int Operate(int a, char y, int b) {
+char Operate(char a, char n, char b) {      /*ËÄÔòÔËËã¼ÆËã*/
     int i, j, result;
-    i = a;
-    j = b;
-    switch(y) {
+    char back;
+    i = a - '0';    /*½«char×ª»»Îªint*/
+    j = b - '0';
+    switch(n) {
         case '+': result = i + j; break;
         case '-': result = i - j; break;
         case '*': result = i * j; break;
         case '/': result = i / j; break;
     }
-    return result;
+    back = result + '0';
+    return back;
 }
 
-int getNext(int *n) {
-    char c;
-    *n = 0;
-    while((c = getchar()) == ' ');  /*Ìø¹ıÒ»¸ö»ò¶à¸ö¿Õ¸ñ*/
-    if(!InN(c)) {            /*Í¨¹ıº¯ÊıÅĞ¶ÏÈç¹û×Ö·û²»ÊÇÊı×Ö£¬ÄÇÃ´Ö»ÄÜÊÇÔËËã·û*/
-        *n = c;
-        return 1;
-    }
-    do {                         /*ÄÜÖ´ĞĞµ½¸ÃÌõÓï¾ä£¬ËµÃ÷×Ö·ûÊÇÊı×Ö£¬´Ë´¦ÓÃÑ­»·»ñµÃÁ¬ĞøµÄÊı×Ö*/
-        *n = *n * 10 + (c-'0');       /*°ÑÁ¬ĞøµÄÊı×Ö×Ö·û×ª»»³ÉÏà¶ÔÓ¦µÄÕûÊı*/
-        c = getchar();
-    } while(InN(c));         /*Èç¹ûÏÂÒ»¸ö×Ö·ûÊÇÊı×Ö£¬½øÈëÏÂÒ»ÂÖÑ­»·*/
-    ungetc(c,stdin);            /*ĞÂ¶ÁÈëµÄ×Ö·û²»ÊÇÊı×Ö£¬¿ÉÄÜÊÇÔËËã·û,ÎªÁË²»Ó°ÏìÏÂ´Î¶ÁÈë£¬°Ñ¸Ã×Ö·û·Å»Øµ½ÊäÈë»º³åÇø*/
-    return 0;
-}
-
-int evaluateExpression(){
-    int n;
-    int flag;
-    int c;
-    char x, y;
-    int a,b;
-    char OP[] = "+-*/()#";
-    SqStack* OPTR;
-    SqStack* OPND;
-    InitStack(&OPTR);
-    Push(&OPTR,'#');
-    InitStack(&OPND);
-    flag = getNext(&c);
-    Pop(OPTR, &x);
-    while(c !='#' || x != '#') {
-        if(flag == 0) {
-                  Push(&OPND,c);
-                  flag = getNext(&c);
-             } else {
-            Pop(OPTR, &x);
+char evaluateExpression(SqStack OPTR, SqStack OPND) {
+    char a, b, c, x, n, temp;
+    temp = '#';
+    Push(&OPTR, temp);
+    char OP[8] = {'+','-','*','/','(',')','#','\0'};
+    c = getchar();    /*ÊäÈë×Ö·û*/
+    while(c != '#' || getTop(OPTR) != '#') {    /*ÅĞ¶ÏÊÇ²»ÊÇÔËËã·û*/
+        if(!in(c, OP)) {    /*²»ÊÇÔËËã·ûÔò½øÕ»*/
+            Push(&OPND, c);
+            c = getchar();
+             } else {    /*ÊÇÔËËã·û¾ÍºÍÇ°ÃæµÄ±È½Ï*/
+            x = getTop(OPTR);
             switch(Precede(x, c)) {
                 case '<':    /*Õ»¶¥ÔªËØÓÅÏÈ¼¶µÍ*/
                     Push(&OPTR, c);
-                    flag = getNext(&c);
+                    c = getchar();
                     break;
                 case '=':    /*ÍÑÀ¨ºÅ²¢½ÓÊÜÏÂÒ»×Ö·û*/
-                    Pop(&OPTR,&x);
-                    flag = getNext(&c);
+                    Pop(&OPTR, &x);
+                    c = getchar();
                     break;
                 case '>':    /*ÍËÕ»²¢½«ÔËËã½á¹ûÈëÕ»*/
-                    Pop(&OPTR, &y);
+                    Pop(&OPTR, &n);
                     Pop(&OPND, &b);
                     Pop(&OPND, &a);
-                    Push(&OPND, Operate(a, y, b));
+                    Push(&OPND, Operate(a, n, b));
                     break;
             }
         }
-        Pop(OPTR, &x);
     }
-    Pop(OPND, &c);
-    return c;
+    return getTop(OPND);
 }
 
-void main(){
-    int c;
-    printf("ÇëÊäÈëÒ»¸ö×Ö·û:\n");
-    c = evaluateExpression();
-    printf("½á¹ûÊÇ = %d\n",c);
-    getch();
+int main(){
+    char c;
+    SqStack OPTR;    /*OPTRÎªÔËËã·ûÕ»£¬OPNDÎªÊı×ÖÕ»*/
+    SqStack OPND;
+    InitStack(&OPTR);
+    InitStack(&OPND);
+    printf("ÇëÊäÈë±í´ïÊ½:\n");
+    c = evaluateExpression(OPTR, OPND);
+    printf("½á¹ûÊÇ = %c\n",c);
+    return 1;
 }
